@@ -21,12 +21,4 @@ export class UiTreeComponent {
   };
 
   constructor() { }
-
-  elmsSelector(e: Element) {
-    return e.tagName === 'li'.toUpperCase();
-  }
-
-  moveSelector(e: Element) {
-    return e.tagName === 'button'.toUpperCase();
-  }
 }

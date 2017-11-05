@@ -11,7 +11,6 @@ import { UiTreeComponent } from './components/ui-tree/ui-tree.component';
 import { DragMoveDirective } from './directive/drag-move.directive';
 import { HmDirective } from './directive/sortable.directive';
 import { FilterPipe } from './pipes/filter.pipe';
-import { SortableElmsDirective } from './directive/sortable-elms.directive';
 
 @NgModule({
   imports: [
@@ -26,7 +25,6 @@ import { SortableElmsDirective } from './directive/sortable-elms.directive';
     FilterPipe,
     DragMoveDirective,
     HmDirective,
-    SortableElmsDirective,
   ],
   exports: [
     UiTreeComponent
