@@ -58,11 +58,11 @@ export class HmDirective implements AfterViewInit {
       mc.on('panstart', (event: any) => {
         event.preventDefault();
         this.setSelectorElm();
-        this.selectIndex = this.nowIndex = this.elms.indexOf(event.target.parentNode);
+        this.selectIndex = this.nowIndex = +event.target.parentNode.attributes.index.value;
         // set choiceNode to this start tag
         this.selectNode = this.elms[this.nowIndex];
         // get distance from this tag's origin
-        this.disY = Math.abs(this.selectNode.offsetTop - event.center.y);
+        this.disY = Math.abs(this.selectNode.getBoundingClientRect().top - event.center.y);
         // set this elem style
         Object.assign(this.selectNode.style, {
           pointerEvents: 'none'
@@ -85,7 +85,7 @@ export class HmDirective implements AfterViewInit {
         Object.assign(this.sort_clone_obj.style, {
           pointerEvents: 'none',
           top: `${event.center.y - this.disY}px`,
-          position: 'absolute',
+          position: 'fixed',
           display: '',
           zIndex: '3'
         });
@@ -93,13 +93,15 @@ export class HmDirective implements AfterViewInit {
         elementsFromPoint(event.center.x, event.center.y, (item: Element) => {
           return item.tagName === 'LI' && item.parentNode === this.parentELm.nativeElement;
         }).then((getElm: any) => {
-          const moveI = Array.from(getElm.parentNode.children).indexOf(getElm);
-          if (this.nowIndex < moveI) {
-            insertAfter(this.selectNode, getElm);
-          } else {
+          let nowI = getElm.nextSibling.attributes ? +getElm.nextSibling.attributes.index.value : this.elms.length;
+
+          // 如果下一個是自己，代表是往上走，所以要插入在他之前，其他狀況就是擦在下面
+          if (nowI === this.selectIndex) {
+            nowI = +getElm.attributes.index.value;
             this.parentELm.nativeElement.insertBefore(this.selectNode, getElm);
+          } else {
+            insertAfter(this.selectNode, getElm);
           }
-          this.nowIndex = moveI;
         });
       });
 
