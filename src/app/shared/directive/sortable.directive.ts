@@ -8,11 +8,12 @@ import { elementsFromPoint } from '../ts/elementsFromPoint';
 export class HmDirective implements AfterViewInit {
   @Input('hm-sortable') sourceObj: any;
 
-  @Input('elms-selector') elmsSelector: Function;
-  @Input('move-selector') moveSelector: Function;
+  @Input('elms-selector') elmsSelector: string;
+  @Input('move-selector') moveSelector: string;
 
   @Input('select-style') selectStyle: any;
   @Input('moving-style') movingStyle: any;
+
   @Output('sort-complete') sortComplete = new EventEmitter();
 
 
@@ -23,40 +24,47 @@ export class HmDirective implements AfterViewInit {
   private nowIndex;
   private disY;
 
+  private rand = Math.ceil(Math.random() * 100000000);
+
   constructor(private parentELm: ElementRef) { }
 
   ngAfterViewInit(): void {
     this.setSelectorElm();
-    // this.elms = this.parentELm.nativeElement.querySelectorAll(this.elmsSelector);
     this.bindHammar(this.getMoveSelector());
+    // console.log(this.rand);
   }
 
   private getMoveSelector() {
-    const movesEl = [];
-    this.parentELm.nativeElement.childNodes.forEach((elm: Element) => {
-      Array.from(elm.childNodes).forEach((e: Element) => {
-        if (this.moveSelector(e)) {
-          movesEl.push(e);
-        }
-      });
-    });
-    // console.log(movesEl);
+    return this.parentELm.nativeElement
+      .querySelectorAll(`#dd${this.rand}>${this.elmsSelector}>${this.moveSelector}`);
+    // const movesEl = [];
+    // this.parentELm.nativeElement.childNodes.forEach((elm: Element) => {
+    //   Array.from(elm.childNodes).forEach((e: Element) => {
+    //     if (this.moveSelector(e)) {
+    //       movesEl.push(e);
+    //     }
+    //   });
+    // });
+    // // console.log(movesEl);
 
-    return movesEl;
+    // return movesEl;
   }
 
   private setSelectorElm() {
-    this.elms.length = 0;
-    this.parentELm.nativeElement.childNodes.forEach((e: Element) => {
-      if (this.elmsSelector(e)) {
-        this.elms.push(e);
-      }
-    });
+    this.parentELm.nativeElement.id = `dd${this.rand}`;
+    this.elms = this.parentELm.nativeElement
+      .querySelectorAll(`#dd${this.rand}>${this.elmsSelector}`);
+    // console.log(this.elms);
+    // this.parentELm.nativeElement.childNodes.forEach((e: Element) => {
+    //   if (this.elmsSelector(e)) {
+    //     this.elms.push(e);
+    //   }
+    // });
     // console.log(this.elms);
   }
 
   private bindHammar(elms) {
-    elms.forEach(el => {
+    Array.from(elms).forEach((el: HTMLElement) => {
       const mc = new Hammer(el);
       // let the pan gesture support all directions.
       // this will block the vertical scrolling on a touch-device while on the element
@@ -104,6 +112,7 @@ export class HmDirective implements AfterViewInit {
         elementsFromPoint(event.center.x, event.center.y, (item: Element) => {
           return item.tagName === 'LI' && item.parentNode === this.parentELm.nativeElement;
         }).then((getElm: any) => {
+          // console.log('move!');
           const moveI = getElm.attributes.index.value;
 
           const tmp = this.sourceObj[this.nowIndex];
@@ -116,7 +125,9 @@ export class HmDirective implements AfterViewInit {
 
       mc.on('panend', (event) => {
         this.selectNode.style.pointerEvents = 'inherit';
-        document.getElementById('sort_clone_obj').remove();
+        // console.log();
+        const tmpElm = document.getElementById('sort_clone_obj');
+        tmpElm.parentNode.removeChild(tmpElm);
         Object.assign(this.elms[this.selectIndex].style, this.storeStyle);
         this.setSelectorElm();
 

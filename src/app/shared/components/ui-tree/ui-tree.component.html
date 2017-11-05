@@ -1,12 +1,13 @@
 <ul
   *ngIf="nodes.length"
   [hm-sortable]="nodes"
-  [elms-selector]="elmsSelector"
-  [move-selector]="moveSelector"
+  elms-selector="li"
+  move-selector="button"
   [select-style]="selectStyle"
   [moving-style]="movingStyle">
   <li
-    *ngFor="let node of nodes; let i = index" [attr.index]="i">
+    *ngFor="let node of nodes; let i = index"
+    [attr.index]="i">
       {{i}}
       <button> sdfs </button>
       <nz-switch *ngIf="node[key] && node[key].length" [(ngModel)]="node.collapse"></nz-switch>

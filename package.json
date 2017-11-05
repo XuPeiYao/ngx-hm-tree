@@ -4,6 +4,11 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
+    "preclean": "rimraf package-lock.json node_modules",
+    "clean": "ncu -a && ncu -d -a",
+    "preupdateAll": "npm run clean",
+    "updateAll": "npm install",
+    "build--prod": "ng build --prod --build-optimizer",
     "start": "ng serve",
     "build": "ng build",
     "test": "ng test",

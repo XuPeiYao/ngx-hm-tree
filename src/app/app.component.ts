@@ -15,36 +15,56 @@ export class AppComponent {
       name: 'beverages',
       collapse: true,
       children: [
-          {
-            name: '1',
-            collapse: true,
-            children: []
-          },
-          {
-            name: '2',
-            collapse: true
-          },
-          {
-            name: '3',
-            collapse: true,
-            children: []
-          },
-          {
-            name: '4',
-            collapse: true
-          }
-        ]
+        {
+          name: '1',
+          collapse: true,
+          children: []
+        },
+        {
+          name: '2',
+          collapse: true,
+          children: [
+            {
+              name: '1',
+              collapse: true,
+              children: []
+            },
+            {
+              name: '2',
+              collapse: true
+            },
+            {
+              name: '3',
+              collapse: true,
+              children: []
+            },
+            {
+              name: '4',
+              collapse: true
+            }
+          ]
+        },
+        {
+          name: '3',
+          collapse: true,
+          children: []
+        },
+        {
+          name: '4',
+          collapse: true
+        }
+      ]
     },
     {
       name: 'footwear',
       collapse: true,
       children: [
-          {
-            name: 'footwear/Sneakers',
-            collapse: true,
-            children: []
-          }
-        ]
+        {
+          name: 'footwear/Sneakers',
+          collapse: true,
+          children: []
+        }
+      ]
     }
   ];
   constructor() {
