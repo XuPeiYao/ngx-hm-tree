@@ -1,10 +1,11 @@
 <ul
   *ngIf="nodes.length"
-  hm-sortable
+  [hm-sortable]="nodes"
   elms-selector="li"
   move-selector="button"
   [select-style]="selectStyle"
-  [moving-style]="movingStyle">
+  [moving-style]="movingStyle"
+  (sort-complete)="complete($event)">
   <li
     *ngFor="let node of nodes; let i = index"
     [attr.index]="i">

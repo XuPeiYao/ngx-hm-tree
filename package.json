@@ -9,7 +9,7 @@
     "preupdateAll": "npm run clean",
     "updateAll": "npm install",
     "build--prod": "ng build --prod --build-optimizer",
-    "start": "ng serve",
+    "start": "ng serve -o",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
