@@ -11,7 +11,7 @@ export class UiTreeComponent {
   @Input('nodes') nodes: Array<any>;
   @Input('key') key = 'children';
 
-
+  enable = true;
   selectStyle = {
     opacity: 0.5,
     color: 'blue'
@@ -24,6 +24,5 @@ export class UiTreeComponent {
 
   complete(event) {
     console.log(event);
-
   }
 }

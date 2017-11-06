@@ -1,8 +1,6 @@
-import { AfterViewInit, Directive, ElementRef, EventEmitter, Input, NgZone, Output } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, EventEmitter, Input, Output } from '@angular/core';
 
-import { insertAfter } from '../ts/element.insertAfter';
-import { removeElement } from '../ts/element.remove';
-import { elementsFromPoint } from '../ts/elementsFromPoint';
+import { elementsFromPoint, insertAfter, removeElement } from '../ts';
 
 @Directive({
   selector: '[hm-sortable]'
@@ -10,11 +8,32 @@ import { elementsFromPoint } from '../ts/elementsFromPoint';
 export class HmDirective implements AfterViewInit {
 
   @Input('hm-sortable') sourceObj;
-  @Input('hm-sortable-enable') enable;
+  @Input('hm-sortable-id') sourceId;
+
+  // default is true
+  private _enable = true;
+  @Input('hm-sortable-enable')
+  set SourceEnable(enable: boolean) {
+    if (enable) {
+      if (this.uniqueId) { // prevent get elms before ViewInit
+        // switch enable, reget all elms and bind Hammer.js
+        this.elms = this.setSelectorElm(this.parentELm.nativeElement);
+        this.hms = this.bindHammer(this.getMoveSelector(this.parentELm.nativeElement));
+      }
+    } else {
+      this.hms.forEach(hm => {
+        hm.destroy();
+      });
+      this.hms.length = 0;
+    }
+    this._enable = enable;
+  }
+  get SourceEnable() {
+    return this._enable;
+  }
 
   @Input('elms-selector') elmsSelector: string;
   @Input('move-selector') moveSelector: string;
-
   @Input('select-style') selectStyle: any;
   @Input('moving-style') movingStyle: any;
 
@@ -30,31 +49,35 @@ export class HmDirective implements AfterViewInit {
 
   private disY;
   private priAction;
+  // use to save all hms data
+  private hms: HammerManager[] = [];
+  private uniqueId;
 
-  private rand = Math.ceil(Math.random() * 100000000);
-
-  constructor(
-    private parentELm: ElementRef,
-    private _noze: NgZone) { }
+  constructor(private parentELm: ElementRef) { }
 
   ngAfterViewInit(): void {
-    this.elms = this.setSelectorElm(this.parentELm.nativeElement);
-    this.bindHammar(this.getMoveSelector(this.parentELm.nativeElement));
+    console.log(this.SourceEnable);
+    this.parentELm.nativeElement.id = this.uniqueId
+      = `SortParent${this.sourceId || Math.ceil(Math.random() * 100000000)}`;
+
+    // if init is true, get element and bind hammerJS
+    if (this.SourceEnable) {
+      this.elms = this.setSelectorElm(this.parentELm.nativeElement);
+      this.hms = this.bindHammer(this.getMoveSelector(this.parentELm.nativeElement));
+    }
   }
 
   private setSelectorElm(elm) {
-    elm.id = `dd${this.rand}`;
-    return Array.from(elm
-      .querySelectorAll(`#dd${this.rand}>${this.elmsSelector}`));
+    elm.id = this.uniqueId;
+    return Array.from(elm.querySelectorAll(`#${this.uniqueId}>${this.elmsSelector}`));
   }
 
   private getMoveSelector(elm) {
-    return elm
-      .querySelectorAll(`#dd${this.rand}>${this.elmsSelector}>${this.moveSelector}`);
+    return elm.querySelectorAll(`#${this.uniqueId}>${this.elmsSelector}>${this.moveSelector}`);
   }
 
-  private bindHammar(elms) {
-    Array.from(elms).forEach((el: HTMLElement, index: number) => {
+  private bindHammer(elms) {
+    return Array.from(elms).map((el: HTMLElement, index: number) => {
       const mc = new Hammer(el);
       // let the pan gesture support all directions.
       // this will block the vertical scrolling on a touch-device while on the element
@@ -73,7 +96,7 @@ export class HmDirective implements AfterViewInit {
         });
 
         // clone a new tag call sort_clone_obj and hidden it
-        this.sort_clone_obj = this.createMovingTag();
+        this.sort_clone_obj = this.createMovingTag(event.center);
 
         // store the choiceTag original css
         Object.keys(this.selectStyle).forEach((key) => {
@@ -84,72 +107,64 @@ export class HmDirective implements AfterViewInit {
       });
 
       mc.on('panmove', (event) => {
+        event.preventDefault();
 
-        this._noze.runOutsideAngular(() => {
-          event.preventDefault();
+        Object.assign(this.sort_clone_obj.style, {
+          transform: `translate(0px, ${event.deltaY}px`,
+          display: '',
+        });
 
-          Object.assign(this.sort_clone_obj.style, {
-            pointerEvents: 'none',
-            top: `${event.center.y - this.disY}px`,
-            position: 'fixed',
-            display: '',
-            zIndex: '3'
-          });
+        elementsFromPoint(event.center.x, event.center.y, (item: Element) => {
+          return item.tagName === 'LI' && item.parentNode === this.parentELm.nativeElement;
+        }).then((getElm: any) => {
 
-          elementsFromPoint(event.center.x, event.center.y, (item: Element) => {
-            return item.tagName === 'LI' && item.parentNode === this.parentELm.nativeElement;
-          }).then((getElm: any) => {
-
-            const toIndex = +getElm.attributes.index.value;
-            if (this.nowIndex !== toIndex) {
-              if (this.nowIndex > toIndex) {
-                this.insertBefore(getElm);
-              } else {
-                this.insertAfter(getElm);
-              }
+          const toIndex = +getElm.attributes.index.value;
+          if (this.nowIndex !== toIndex) {
+            if (this.nowIndex > toIndex) {
+              this.insertBefore(getElm);
             } else {
-              switch (this.priAction) {
-                case MOVE_TYPE.UP:
-                  this.insertAfter(getElm);
-                  break;
-                case MOVE_TYPE.DOWN:
-                  this.insertBefore(getElm);
-                  break;
-              }
+              this.insertAfter(getElm);
             }
-            this.nowIndex = toIndex;
-          });
+          } else {
+            switch (this.priAction) {
+              case MOVE_TYPE.UP:
+                this.insertAfter(getElm);
+                break;
+              case MOVE_TYPE.DOWN:
+                this.insertBefore(getElm);
+                break;
+            }
+          }
+          this.nowIndex = toIndex;
         });
       });
 
       mc.on('panend', (event) => {
-        this._noze.runOutsideAngular(() => {
-          this.selectNode.style.pointerEvents = '';
-          removeElement(this.sort_clone_obj);
-          Object.assign(this.elms[this.selectIndex].style, this.storeStyle);
+        this.selectNode.style.pointerEvents = '';
+        removeElement(this.sort_clone_obj);
+        Object.assign(this.elms[this.selectIndex].style, this.storeStyle);
 
-          this.elms = this.setSelectorElm(this.parentELm.nativeElement);
-          const id = this.elms.indexOf(this.selectNode);
+        this.elms = this.setSelectorElm(this.parentELm.nativeElement);
+        const id = this.elms.indexOf(this.selectNode);
 
-          if (this.selectIndex !== id) {
-            const tmp = this.sourceObj[this.selectIndex];
-            this.sourceObj.splice(this.selectIndex, 1);
-            this.sourceObj.splice(id, 0, tmp);
+        if (this.selectIndex !== id) {
+          const tmp = this.sourceObj[this.selectIndex];
+          this.sourceObj.splice(this.selectIndex, 1);
+          this.sourceObj.splice(id, 0, tmp);
 
-            this.sortComplete.emit(this.sourceObj);
-          }
+          this.sortComplete.emit(this.sourceObj);
+        }
 
-          // when move complete clear all unuse variable
-          this.storeStyle = {};
-          this.selectNode = undefined;
-          this.sort_clone_obj = undefined;
-          this.selectIndex = undefined;
-          this.nowIndex = undefined;
-          this.disY = undefined;
-          this.priAction = undefined;
-
-        });
+        // when move complete clear all unuse variable
+        this.storeStyle = {};
+        this.selectNode = undefined;
+        this.sort_clone_obj = undefined;
+        this.selectIndex = undefined;
+        this.nowIndex = undefined;
+        this.disY = undefined;
+        this.priAction = undefined;
       });
+      return mc;
     });
   }
 
@@ -164,11 +179,14 @@ export class HmDirective implements AfterViewInit {
   }
 
   // clone a new tag call sort_clone_obj and hidden it
-  private createMovingTag() {
+  private createMovingTag(position) {
     const clnElm = this.selectNode.cloneNode(true);
     clnElm.id = 'sort_clone_obj';
     const style = {
-      position: 'absolute',
+      top: `${position.y - this.disY}px`,
+      position: 'fixed',
+      pointerEvents: 'none',
+      zIndex: '3',
       display: 'none'
     };
     Object.assign(clnElm.style, style, this.movingStyle);
@@ -177,7 +195,6 @@ export class HmDirective implements AfterViewInit {
   }
 
 }
-
 
 enum MOVE_TYPE {
   UP = 'up',

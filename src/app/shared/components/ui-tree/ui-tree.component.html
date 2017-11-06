@@ -1,6 +1,10 @@
+<!-- <button (click)="enable=!enable">222</button> -->
+
+<nz-switch [(ngModel)]="enable"></nz-switch>
 <ul
   *ngIf="nodes.length"
   [hm-sortable]="nodes"
+  [hm-sortable-enable]="enable"
   elms-selector="li"
   move-selector="button"
   [select-style]="selectStyle"
@@ -11,7 +15,6 @@
     [attr.index]="i">
       {{i}}
       <button> sdfs </button>
-      <nz-switch *ngIf="node[key] && node[key].length" [(ngModel)]="node.collapse"></nz-switch>
       <span>{{node.name}}</span>
       <span *ngIf="node[key] && node[key].length">({{ node[key].length }})</span>
       <app-ui-tree
