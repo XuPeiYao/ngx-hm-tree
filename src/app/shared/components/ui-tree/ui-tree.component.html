@@ -11,11 +11,14 @@
   [moving-style]="movingStyle"
   (sort-complete)="complete($event)">
   <li
-    *ngFor="let node of nodes; let i = index"
+    *ngFor="let node of nodes | filter: {name: searchText}; let i = index"
     [attr.index]="i">
       {{i}}
       <button> sdfs </button>
-      <span>{{node.name}}</span>
+      <label nz-checkbox *ngIf="node[key] && node[key].length" [(ngModel)]="node.collapse">
+        <span>{{ node.collapse ? 'open' : 'close' }}</span>
+      </label>
+      <span [innerHTML] ="node.name | highlight: searchText"></span>
       <span *ngIf="node[key] && node[key].length">({{ node[key].length }})</span>
       <app-ui-tree
         *ngIf="node[key] && node[key].length && node.collapse"
