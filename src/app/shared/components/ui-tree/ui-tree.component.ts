@@ -1,11 +1,24 @@
-import { Component, Input } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, Input, ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
+import { selector } from 'rxjs/operator/publish';
+
+export const EXPANSION_PANEL_ANIMATION_TIMING = '225ms cubic-bezier(0.4,0.0,0.2,1)';
 
 @Component({
   selector: 'app-ui-tree',
   templateUrl: './ui-tree.component.html',
-  styleUrls: ['./ui-tree.component.css']
+  styleUrls: ['./ui-tree.component.css'],
+  animations: [
+    trigger('bodyExpansion', [
+      state('collapsed', style({ height: '0px', visibility: 'hidden' })),
+      state('expanded', style({ height: '*', visibility: 'visible' })),
+      transition('expanded <=> collapsed', animate(EXPANSION_PANEL_ANIMATION_TIMING)),
+    ]),
+  ],
 })
 export class UiTreeComponent {
+
+  state = 'expanded';
 
   @Input('searchText') searchText = '';
   @Input('nodes') nodes: Array<any>;
@@ -23,6 +36,13 @@ export class UiTreeComponent {
   constructor() { }
 
   complete(event) {
-    console.log(event);
+    // console.log(event);
+  }
+
+  close() {
+    this.state = 'collapsed';
+  }
+  open() {
+    this.state = 'expanded';
   }
 }

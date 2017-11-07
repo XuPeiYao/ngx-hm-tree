@@ -1,7 +1,8 @@
 <!-- <button (click)="enable=!enable">222</button> -->
-
-<nz-switch [(ngModel)]="enable"></nz-switch>
+<button type="button" (click)="close()">close</button>
+<button type="button" (click)="open()">open</button>
 <ul
+  [@bodyExpansion]="state"
   *ngIf="nodes.length"
   [hm-sortable]="nodes"
   [hm-sortable-enable]="enable"
