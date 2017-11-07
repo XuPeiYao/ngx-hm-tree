@@ -67,7 +67,6 @@ export class HmDirective implements AfterViewInit {
   }
 
   private setSelectorElm(elm) {
-    elm.id = this.uniqueId;
     return Array.from(elm.querySelectorAll(`#${this.uniqueId}>${this.elmsSelector}`));
   }
 
