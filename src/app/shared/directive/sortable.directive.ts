@@ -47,7 +47,6 @@ export class HmDirective implements AfterViewInit {
   private nowIndex;
   private sort_clone_obj;
 
-  private disY;
   private priAction;
   // use to save all hms data
   private hms: HammerManager[] = [];
@@ -89,14 +88,15 @@ export class HmDirective implements AfterViewInit {
         // set choiceNode to this start tag
         this.selectNode = this.elms[this.nowIndex];
         // get distance from this tag's origin
-        this.disY = Math.abs(this.selectNode.getBoundingClientRect().top - event.center.y);
         // set this elem style
         Object.assign(this.selectNode.style, {
           pointerEvents: 'none'
         });
 
         // clone a new tag call sort_clone_obj and hidden it
-        this.sort_clone_obj = this.createMovingTag(event.center);
+        this.sort_clone_obj =
+          this.createMovingTag(event.center,
+            Math.abs(this.selectNode.getBoundingClientRect().top - event.center.y));
 
         // store the choiceTag original css
         Object.keys(this.selectStyle).forEach((key) => {
@@ -111,7 +111,6 @@ export class HmDirective implements AfterViewInit {
 
         Object.assign(this.sort_clone_obj.style, {
           transform: `translate(0px, ${event.deltaY}px`,
-          display: '',
         });
 
         elementsFromPoint(event.center.x, event.center.y, (item: Element) => {
@@ -161,7 +160,6 @@ export class HmDirective implements AfterViewInit {
         this.sort_clone_obj = undefined;
         this.selectIndex = undefined;
         this.nowIndex = undefined;
-        this.disY = undefined;
         this.priAction = undefined;
       });
       return mc;
@@ -179,15 +177,14 @@ export class HmDirective implements AfterViewInit {
   }
 
   // clone a new tag call sort_clone_obj and hidden it
-  private createMovingTag(position) {
+  private createMovingTag(position, disY) {
     const clnElm = this.selectNode.cloneNode(true);
     clnElm.id = 'sort_clone_obj';
     const style = {
-      top: `${position.y - this.disY}px`,
+      top: `${position.y - disY}px`,
       position: 'fixed',
       pointerEvents: 'none',
       zIndex: '3',
-      display: 'none'
     };
     Object.assign(clnElm.style, style, this.movingStyle);
     this.parentELm.nativeElement.appendChild(clnElm);
