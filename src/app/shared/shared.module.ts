@@ -7,10 +7,34 @@ import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgZorroAntdModule } from 'ng-zorro-antd';
 
-import { UiTreeComponent } from './components/ui-tree/ui-tree.component';
-import { DragMoveDirective } from './directive/drag-move.directive';
-import { HmDirective } from './directive/sortable.directive';
-import { FilterPipe } from './pipes/filter.pipe';
+import {
+  UiTreeComponent
+} from './components';
+
+import {
+  DragMoveDirective,
+  HmDirective
+} from './directives';
+
+import {
+  FilterPipe,
+  HighlightPipe,
+  TimingPipe
+} from './pipes';
+
+const SHARE_COMPONENTS = [
+  UiTreeComponent
+];
+
+const SHARE_DIRECTIVES = [
+  HmDirective
+];
+
+const SHARE_PIPES = [
+  FilterPipe,
+  HighlightPipe,
+  TimingPipe
+];
 
 @NgModule({
   imports: [
@@ -21,13 +45,12 @@ import { FilterPipe } from './pipes/filter.pipe';
     NgZorroAntdModule.forRoot()
   ],
   declarations: [
-    UiTreeComponent,
-    FilterPipe,
-    DragMoveDirective,
-    HmDirective,
+    SHARE_COMPONENTS,
+    SHARE_DIRECTIVES,
+    SHARE_PIPES
   ],
   exports: [
-    UiTreeComponent
+    SHARE_COMPONENTS
   ]
 })
 export class SharedModule { }
