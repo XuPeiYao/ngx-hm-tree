@@ -2,7 +2,6 @@
 <button type="button" (click)="close()">close</button>
 <button type="button" (click)="open()">open</button>
 <ul
-  [@bodyExpansion]="state"
   *ngIf="nodes.length"
   [hm-sortable]="nodes"
   [hm-sortable-enable]="enable"
@@ -12,6 +11,7 @@
   [moving-style]="movingStyle"
   (sort-complete)="complete($event)">
   <li
+    [@bodyExpansion]="state"
     *ngFor="let node of nodes | filter: {name: searchText}; let i = index"
     [attr.index]="i">
       {{i}}
