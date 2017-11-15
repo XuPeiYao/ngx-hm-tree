@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { UiTreeNode } from './shared/components/ui-tree/ui-tree-node';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,7 @@ export class AppComponent {
   name: string;
   key = 'children';
   searchText = '';
-  data: Array<Object> = [
+  data: Array<UiTreeNode> = [
     {
       name: 'beverages',
       collapse: true,
@@ -96,7 +97,7 @@ export class AppComponent {
         {
           name: '4',
           collapse: true
-        },
+        }
       ]
     },
     {
