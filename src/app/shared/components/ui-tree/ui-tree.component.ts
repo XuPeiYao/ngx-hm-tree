@@ -54,9 +54,16 @@ export class UiTreeComponent {
     // console.log(event);
   }
 
+  /**
+   * 縮起子節點
+   */
   close() {
     this.state = 'collapsed';
   }
+
+  /**
+   * 展開子節點
+   */
   open() {
     this.state = 'expanded';
   }
